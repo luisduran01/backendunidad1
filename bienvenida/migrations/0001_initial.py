@@ -16,9 +16,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(max_length=64)),
-                ('precio', models.DecimalField(default=0)),
-                ('stock', models.IntegerField(default=0)),
+                ('precio', models.IntegerField(default=0)),
                 ('descripcion', models.CharField(blank=True, max_length=128, null=True)),
+                ('stock', models.IntegerField(default=0)),
             ],
         ),
     ]
