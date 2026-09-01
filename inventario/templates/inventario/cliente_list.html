@@ -1,0 +1,146 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Directorio de Clientes - Mi Tienda POS{% endblock %}
+
+{% block content %}
+<!-- Header Clientes -->
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; background: var(--gradient-purple); color: #FFFFFF; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+                <h1 class="hero-title mb-0" style="font-size: 2rem;">Directorio de Clientes</h1>
+                <p class="text-secondary mb-0 small mt-1">Gestión de cartera de compradores frecuentes y habituales.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'venta_create' %}" class="btn-action-success">
+            <i class="bi bi-cart-plus-fill"></i>
+            <span>Nueva Venta</span>
+        </a>
+    </div>
+</div>
+
+<!-- Métricas Clientes -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100" style="border-radius: 20px; border-left: 4px solid #7C3AED;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-bold small" style="letter-spacing: 0.06em;">TOTAL REGISTRADOS</span>
+                    <h2 class="fw-bold mb-0 text-dark mt-1" style="font-size: 2.2rem; font-family: 'Outfit';">{{ total_clientes }}</h2>
+                </div>
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #F3E8FF, #EDE9FE); color: #7C3AED; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100" style="border-radius: 20px; border-left: 4px solid #10B981;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-bold small" style="letter-spacing: 0.06em;">CLIENTES HABITUALES</span>
+                    <h2 class="fw-bold mb-0 text-success mt-1" style="font-size: 2.2rem; font-family: 'Outfit';">{{ habituales }}</h2>
+                </div>
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #ECFDF5, #D1FAE5); color: #059669; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                    <i class="bi bi-stars"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Buscador Clientes -->
+<div class="glass-card p-3 mb-4" style="border-radius: 16px;">
+    <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-9">
+            <div class="position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                <input type="text" name="q" value="{{ query }}" class="form-control" style="border-radius: 10px; padding-left: 2.4rem;" placeholder="Buscar cliente por nombre, RUT o correo electrónico...">
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+            <button type="submit" class="btn btn-dark w-100 fw-semibold" style="border-radius: 10px; height: 38px;">
+                <i class="bi bi-search me-1"></i> Filtrar
+            </button>
+            {% if query %}
+                <a href="{% url 'cliente_list' %}" class="btn btn-light border" style="border-radius: 10px;" title="Limpiar">
+                    <i class="bi bi-x-lg text-secondary"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Tabla Clientes -->
+<div class="glass-card" style="border-radius: 20px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead style="background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);">
+                <tr>
+                    <th scope="col" class="ps-4 text-uppercase text-secondary small fw-bold">RUT</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Nombre Completo</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Contacto</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Frecuencia</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Compras</th>
+                    <th scope="col" class="text-end pe-4 text-uppercase text-secondary small fw-bold">Fecha Alta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cli in clientes %}
+                    <tr style="border-bottom: 1px solid #F1F5F9;">
+                        <td class="ps-4">
+                            <span class="chip-tech">{{ cli.rut }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--gradient-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
+                                    {{ cli.nombre|slice:":1"|upper }}
+                                </div>
+                                <span class="fw-bold text-dark">{{ cli.nombre }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if cli.email %}
+                                <div class="small text-secondary"><i class="bi bi-envelope-fill me-1 text-muted"></i>{{ cli.email }}</div>
+                            {% endif %}
+                            {% if cli.telefono %}
+                                <div class="small text-secondary"><i class="bi bi-telephone-fill me-1 text-muted"></i>{{ cli.telefono }}</div>
+                            {% endif %}
+                            {% if not cli.email and not cli.telefono %}
+                                <span class="text-muted small">Sin contacto</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if cli.es_habitual %}
+                                <span class="badge" style="background: linear-gradient(135deg, #ECFDF5, #D1FAE5); color: #065F46; border: 1px solid #A7F3D0; border-radius: 99px; padding: 0.35rem 0.75rem;">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>Cliente Habitual
+                                </span>
+                            {% else %}
+                                <span class="badge text-muted bg-light border">Ocasional</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill bg-dark px-3 py-2">{{ cli.ventas.count }} boleta(s)</span>
+                        </td>
+                        <td class="text-end pe-4 text-secondary small">
+                            {{ cli.fecha_registro|date:"d/m/Y" }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 text-secondary d-block mb-2"></i>
+                            <h5 class="fw-bold">No se encontraron clientes</h5>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

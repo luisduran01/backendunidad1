@@ -1,12 +1,37 @@
-Confirmación de borrado:
-
-
-<!-- inventario/templates/inventario/producto_confirm_delete.html -->
 {% extends 'inventario/base.html' %}
+
+{% block title %}Eliminar Producto: {{ producto.nombre }} - Mi Tienda POS{% endblock %}
+
 {% block content %}
-<h1>¿Eliminar {{ object.nombre }}?</h1>
-<form method="post">{% csrf_token %}
-  <button type="submit">Sí, eliminar</button>
-  <a href="{% url 'producto_list' %}">Cancelar</a>
-</form>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="glass-card p-4 p-md-5 mb-4 border-danger-subtle" style="border-radius: 24px;">
+            <div class="text-center mb-3">
+                <div style="width: 60px; height: 60px; background: var(--gradient-rose); color: white; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35);">
+                    <i class="bi bi-trash-fill"></i>
+                </div>
+                <h3 class="fw-bold mt-3 text-dark" style="font-family: 'Outfit';">¿Eliminar Producto?</h3>
+                <p class="text-muted small">Esta acción no se puede deshacer y retirará el ítem del catálogo.</p>
+            </div>
+
+            <div class="p-3 my-3 rounded-3" style="background: #FEF2F2; border: 1px solid #FECACA;">
+                <p class="mb-1 text-danger-emphasis"><strong>Producto:</strong> {{ producto.nombre }}</p>
+                <p class="mb-1 text-danger-emphasis"><strong>Código:</strong> <span class="chip-tech">{{ producto.codigo }}</span></p>
+                <p class="mb-0 text-danger-emphasis"><strong>Stock en riesgo:</strong> {{ producto.stock }} unidades</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{% url 'producto_list' %}" class="btn btn-light px-3 fw-semibold text-secondary" style="border-radius: 10px; border: 1px solid #E2E8F0;">
+                        <i class="bi bi-arrow-left me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger fw-bold px-4" style="border-radius: 10px; height: 42px; background: var(--gradient-rose); border: none; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);">
+                        <i class="bi bi-trash-fill me-1"></i> Sí, Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

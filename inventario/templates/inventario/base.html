@@ -1,9 +1,376 @@
-  <head> 
-  <title>{% block title %}{% endblock %}</title> 
-</head> 
-<body> 
-  <header>{% block header %}{% endblock %}</header> 
-  <nav>{% block breadcrumb %}{% endblock %}</nav> 
-  <main>{% block content %}{% endblock %}</main> 
-</body> 
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Tienda &bull; Control de Ventas & Inventario{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Gradientes y Acentos de Color Innovadores */
+            --gradient-primary: linear-gradient(135deg, #4F46E5 0%, #3B82F6 50%, #06B6D4 100%);
+            --gradient-emerald: linear-gradient(135deg, #059669 0%, #10B981 50%, #14B8A6 100%);
+            --gradient-amber: linear-gradient(135deg, #D97706 0%, #F59E0B 50%, #F97316 100%);
+            --gradient-rose: linear-gradient(135deg, #E11D48 0%, #F43F5E 50%, #FB7185 100%);
+            --gradient-purple: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #C084FC 100%);
+            --gradient-dark: linear-gradient(180deg, #090D16 0%, #0F172A 100%);
+            
+            --color-indigo: #4F46E5;
+            --color-blue: #2563EB;
+            --color-cyan: #06B6D4;
+            --color-emerald: #059669;
+            --color-amber: #D97706;
+            --color-rose: #E11D48;
+            
+            --color-bg-mesh: #F4F7FC;
+            --color-surface: #FFFFFF;
+            --color-surface-hover: #F8FAFF;
+            --color-text-main: #0B132B;
+            --color-text-body: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-text-muted: #94A3B8;
+            --color-border: #E2E8F0;
+            --color-border-glow: rgba(99, 102, 241, 0.25);
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            --shadow-card: 0 8px 30px -4px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+            --shadow-card-hover: 0 16px 36px -6px rgba(15, 23, 42, 0.10), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+            --shadow-glow-blue: 0 4px 20px rgba(59, 130, 246, 0.28);
+            --shadow-glow-emerald: 0 4px 20px rgba(16, 185, 129, 0.28);
+            
+            --radius-card: 18px;
+            --radius-btn: 12px;
+            --radius-pill: 9999px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--color-bg-mesh);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.07) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.07) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--color-text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.015em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, .brand-text {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.025em;
+        }
+
+        /* Navbar Ultra-Glassmorphism */
+        .navbar-innovative {
+            background: rgba(11, 18, 32, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.22);
+            padding: 0.85rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+        .navbar-brand-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        .brand-logo-badge {
+            width: 38px;
+            height: 38px;
+            background: var(--gradient-primary);
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .navbar-brand-custom:hover .brand-logo-badge {
+            transform: scale(1.08) rotate(-3deg);
+        }
+        .brand-text {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        .badge-live-pos {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .navbar-innovative .nav-link {
+            color: #94A3B8;
+            font-weight: 600;
+            font-size: 0.925rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .navbar-innovative .nav-link:hover {
+            color: #F8FAFC;
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-1px);
+        }
+        .navbar-innovative .nav-link.active {
+            color: #FFFFFF;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(59, 130, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 2px 10px rgba(79, 70, 229, 0.15);
+        }
+        .navbar-innovative .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 99px;
+            box-shadow: 0 0 8px #3B82F6;
+        }
+
+        /* Botones Vibrantes */
+        .btn-vibrant-sell {
+            background: var(--gradient-emerald);
+            color: #FFFFFF;
+            font-weight: 700;
+            border: none;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-glow-emerald);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            text-decoration: none;
+        }
+        .btn-vibrant-sell:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            color: #FFFFFF;
+        }
+        .btn-vibrant-admin {
+            background: rgba(255, 255, 255, 0.05);
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            height: 40px;
+            padding: 0 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            text-decoration: none;
+        }
+        .btn-vibrant-admin:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-action-primary {
+            background: var(--gradient-primary);
+            color: #FFFFFF;
+            border: none;
+            font-weight: 700;
+            height: 44px;
+            padding: 0 18px;
+            border-radius: var(--radius-btn);
+            box-shadow: var(--shadow-glow-blue);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-action-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(79, 70, 229, 0.42);
+            color: #FFFFFF;
+        }
+
+        .btn-action-success {
+            background: var(--gradient-emerald);
+            color: #FFFFFF;
+            border: none;
+            font-weight: 700;
+            height: 44px;
+            padding: 0 18px;
+            border-radius: var(--radius-btn);
+            box-shadow: var(--shadow-glow-emerald);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-action-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(16, 185, 129, 0.42);
+            color: #FFFFFF;
+        }
+
+        /* Contenedores y Cards */
+        .glass-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #CBD5E1;
+        }
+
+        /* Micro-animación de Entrada */
+        .anim-fade-up {
+            animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer Moderno */
+        .footer-innovative {
+            margin-top: auto;
+            border-top: 1px solid var(--color-border);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 1.75rem 0;
+            color: var(--color-text-secondary);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navbar Innovador con Efecto Vidrio -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-innovative">
+        <div class="container">
+            <a class="navbar-brand-custom" href="{% url 'producto_list' %}">
+                <div class="brand-logo-badge">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <div class="d-flex flex-column">
+                    <span class="brand-text">Mi Tienda</span>
+                </div>
+                <span class="badge-live-pos ms-1">
+                    <i class="bi bi-circle-fill text-info me-1" style="font-size: 6px;"></i>POS Live
+                </span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'producto_list' or request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'producto_list' %}">
+                            <i class="bi bi-boxes text-primary"></i> Catálogo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'venta_create' %}active{% endif %}" href="{% url 'venta_create' %}">
+                            <i class="bi bi-cart-check-fill text-success"></i> Nueva Venta
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'venta_list' %}active{% endif %}" href="{% url 'venta_list' %}">
+                            <i class="bi bi-receipt-cutoff text-warning"></i> Boletas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'cliente_list' %}active{% endif %}" href="{% url 'cliente_list' %}">
+                            <i class="bi bi-people-fill text-info"></i> Clientes
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{% url 'venta_create' %}" class="btn-vibrant-sell">
+                        <i class="bi bi-bag-check-fill"></i> Vender Ahora
+                    </a>
+                    <a href="/admin/" target="_blank" class="btn-vibrant-admin">
+                        <i class="bi bi-shield-lock-fill"></i> Panel Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido con Animación y Alertas Estilizadas -->
+    <main class="container my-4 my-md-5 flex-grow-1 anim-fade-up">
+        {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm d-flex align-items-center p-3" role="alert" style="border-radius: 14px; background: {% if message.tags == 'success' %}linear-gradient(135deg, #ECFDF5, #F0FDF4){% elif message.tags == 'error' %}linear-gradient(135deg, #FEF2F2, #FFF1F2){% else %}linear-gradient(135deg, #EFF6FF, #F0F9FF){% endif %}; border-left: 4px solid {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% else %}#3B82F6{% endif %} !important;">
+                        <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'error' %}bi-exclamation-triangle-fill text-danger{% else %}bi-info-circle-fill text-primary{% endif %} fs-4 me-3"></i>
+                        <div class="fw-semibold text-dark">{{ message }}</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Innovador -->
+    <footer class="footer-innovative text-center">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="text-md-start">
+                <span class="fw-bold text-dark"><i class="bi bi-gem text-primary me-1"></i>Mi Tienda POS</span>
+                <span class="text-muted ms-2">&bull; Sistema de Control de Ventas e Inventario</span>
+            </div>
+            <div class="small text-muted">
+                Evaluación Sumativa 1 &bull; Programación Backend &bull; INACAP
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,118 @@
+{% extends 'inventario/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Punto de Venta &bull; Emitir Boleta - Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card p-4 p-md-5 mb-4" style="border-radius: 24px; box-shadow: var(--shadow-card);">
+            <!-- Encabezado del Formulario -->
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div style="width: 52px; height: 52px; background: var(--gradient-emerald); color: #FFFFFF; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--shadow-glow-emerald);">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0 text-dark" style="font-size: 1.75rem;">Terminal de Venta</h2>
+                    <p class="text-muted small mb-0">Emisión de boleta comercial y descuento instantáneo de inventario.</p>
+                </div>
+            </div>
+
+            <form method="POST" id="ventaForm" novalidate>
+                {% csrf_token %}
+
+                <!-- PASO 1: SELECCIÓN DE PRODUCTO -->
+                <div class="p-4 mb-4 rounded-4" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge" style="background: var(--gradient-primary); font-size: 0.75rem; border-radius: 6px;">PASO 1</span>
+                        <h6 class="fw-bold mb-0 text-dark">Selección de Producto & Cantidad</h6>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            {{ form.producto|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.cantidad|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: IDENTIFICACIÓN DEL COMPRADOR -->
+                <div class="p-4 mb-4 rounded-4" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge" style="background: var(--gradient-emerald); font-size: 0.75rem; border-radius: 6px;">PASO 2</span>
+                        <h6 class="fw-bold mb-0 text-dark">Identificación del Cliente & Boleta</h6>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            {{ form.rut_cliente|as_crispy_field }}
+                            <div class="form-text small text-muted">Ingrese RUT con o sin puntos (ej: 18.345.675-K). Se valida mediante Módulo 11.</div>
+                        </div>
+                    </div>
+
+                    <!-- Switch Cliente Habitual -->
+                    <div class="form-check form-switch mt-4 p-3 bg-white rounded-3 border ps-5 d-flex align-items-center justify-content-between">
+                        <div>
+                            <label class="form-check-label fw-bold text-dark d-block mb-1" for="toggleHabitual">
+                                <i class="bi bi-star-fill text-warning me-1"></i> ¿Registrar como Cliente Habitual?
+                            </label>
+                            <span class="text-muted small d-block">Guarda los datos de contacto del comprador para futuras compras.</span>
+                        </div>
+                        {{ form.es_cliente_habitual }}
+                    </div>
+
+                    <!-- Campos Desplegables de Cliente Habitual -->
+                    <div id="habitualFields" class="mt-3 p-4 bg-white rounded-3 border" style="display: none; animation: fadeUp 0.25s ease;">
+                        <h6 class="fw-bold text-primary mb-3 small text-uppercase"><i class="bi bi-person-lines-fill me-1"></i> Ficha de Contacto Cliente Habitual</h6>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                {{ form.nombre_cliente|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email_cliente|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.telefono_cliente|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a href="{% url 'producto_list' %}" class="btn btn-light px-4 fw-semibold text-secondary" style="border-radius: 12px; height: 44px; border: 1px solid #E2E8F0;">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al Catálogo
+                    </a>
+                    <button type="submit" class="btn-action-success" style="height: 46px; font-size: 0.95rem;">
+                        <i class="bi bi-check2-circle fs-5"></i>
+                        <span>Confirmar & Emitir Boleta</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleHabitual = document.getElementById('toggleHabitual');
+        const habitualFields = document.getElementById('habitualFields');
+
+        function updateFieldsVisibility() {
+            if (toggleHabitual && toggleHabitual.checked) {
+                habitualFields.style.display = 'block';
+            } else {
+                habitualFields.style.display = 'none';
+            }
+        }
+
+        if (toggleHabitual) {
+            toggleHabitual.addEventListener('change', updateFieldsVisibility);
+            updateFieldsVisibility();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Boleta Electrónica {{ venta.numero_boleta }} - Mi Tienda POS{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        body {
+            background: white !important;
+        }
+        nav, footer, .no-print {
+            display: none !important;
+        }
+        .boleta-card {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+            <a href="{% url 'venta_list' %}" class="btn btn-light border px-3 fw-semibold text-secondary" style="border-radius: 10px;">
+                <i class="bi bi-arrow-left me-1"></i> Historial de Boletas
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'venta_create' %}" class="btn-action-success btn-sm px-3">
+                    <i class="bi bi-cart-plus-fill"></i> Nueva Venta
+                </a>
+                <button onclick="window.print()" class="btn btn-dark btn-sm px-3 fw-semibold d-inline-flex align-items-center gap-1" style="border-radius: 10px;">
+                    <i class="bi bi-printer-fill"></i> Imprimir
+                </button>
+            </div>
+        </div>
+
+        <!-- Boleta Digital Premium -->
+        <div class="glass-card boleta-card p-4 p-md-5 mb-5" style="border-radius: 24px; position: relative;">
+            <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4 flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div style="width: 34px; height: 34px; background: var(--gradient-primary); color: white; border-radius: 9px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit';">MI TIENDA SPA</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Comercializadora y Distribuidora de Tecnología</p>
+                    <p class="text-muted small mb-0">Av. Providencia 1234, Santiago &bull; Fono: +56 2 2345 6789</p>
+                </div>
+                <div class="border border-2 border-danger p-3 rounded-3 text-center" style="min-width: 220px; background: #FFF5F5;">
+                    <span class="text-danger fw-bold d-block small text-uppercase" style="letter-spacing: 0.05em;">R.U.T.: 76.987.654-3</span>
+                    <span class="text-danger fw-bold fs-5 d-block my-1" style="font-family: 'Outfit';">BOLETA ELECTRÓNICA</span>
+                    <span class="text-danger fw-bold font-monospace fs-6">N° {{ venta.numero_boleta }}</span>
+                </div>
+            </div>
+
+            <!-- Datos del Cliente y Emisión -->
+            <div class="row g-3 mb-4 p-3 rounded-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                <div class="col-sm-6">
+                    <span class="text-uppercase text-secondary fw-bold small d-block mb-2" style="font-size: 0.725rem; letter-spacing: 0.05em;">Datos del Comprador</span>
+                    <p class="mb-1"><strong>RUT:</strong> <span class="font-monospace text-dark fw-bold">{{ venta.rut_cliente }}</span></p>
+                    {% if venta.cliente %}
+                        <p class="mb-1"><strong>Nombre:</strong> {{ venta.cliente.nombre }}</p>
+                        {% if venta.cliente.email %}
+                            <p class="mb-1 small text-muted"><strong>Email:</strong> {{ venta.cliente.email }}</p>
+                        {% endif %}
+                        {% if venta.cliente.telefono %}
+                            <p class="mb-1 small text-muted"><strong>Teléfono:</strong> {{ venta.cliente.telefono }}</p>
+                        {% endif %}
+                        <span class="badge mt-2" style="background: var(--gradient-emerald); font-size: 0.725rem;">
+                            <i class="bi bi-patch-check-fill me-1"></i>Cliente Habitual Verificado
+                        </span>
+                    {% else %}
+                        <span class="badge bg-light text-secondary border mt-2">Cliente Ocasional</span>
+                    {% endif %}
+                </div>
+                <div class="col-sm-6 text-sm-end">
+                    <span class="text-uppercase text-secondary fw-bold small d-block mb-2" style="font-size: 0.725rem; letter-spacing: 0.05em;">Información de Emisión</span>
+                    <p class="mb-1"><strong>Fecha:</strong> {{ venta.fecha_venta|date:"d/m/Y" }}</p>
+                    <p class="mb-1"><strong>Hora:</strong> {{ venta.fecha_venta|date:"H:i:s" }} hrs</p>
+                    <p class="mb-0 text-muted small"><strong>Medio de Pago:</strong> Efectivo / Débito</p>
+                </div>
+            </div>
+
+            <!-- Tabla de Ítems de la Boleta -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light text-center small text-uppercase text-secondary">
+                        <tr>
+                            <th class="text-start">Detalle del Producto</th>
+                            <th style="width: 15%;">Cantidad</th>
+                            <th style="width: 22%;">Precio Unitario</th>
+                            <th style="width: 22%;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in venta.detalles.all %}
+                            <tr>
+                                <td>
+                                    <strong class="text-dark">{{ item.producto.nombre }}</strong>
+                                    <span class="text-muted small d-block font-monospace">SKU: {{ item.producto.codigo }}</span>
+                                </td>
+                                <td class="text-center fw-bold">{{ item.cantidad }}</td>
+                                <td class="text-end">${{ item.precio_unitario|floatformat:"0" }}</td>
+                                <td class="text-end fw-bold text-dark">${{ item.subtotal|floatformat:"0" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #F8FAFC;">
+                            <td colspan="3" class="text-end fw-bold fs-5 text-dark">TOTAL A PAGAR:</td>
+                            <td class="text-end fw-bold fs-4 text-success" style="font-family: 'Outfit';">${{ venta.total|floatformat:"0" }} <small class="fs-6 text-muted">CLP</small></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="text-center pt-3 border-top text-muted small">
+                <p class="mb-1 fw-semibold text-secondary">¡Muchas gracias por su compra!</p>
+                <p class="mb-0 font-monospace text-muted" style="font-size: 0.75rem;">El IVA de esta boleta ha sido retenido según la normativa vigente del SII.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

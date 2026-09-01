@@ -1,0 +1,145 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Historial de Boletas & Ventas - Mi Tienda POS{% endblock %}
+
+{% block content %}
+<!-- Header de Ventas -->
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; background: var(--gradient-amber); color: #FFFFFF; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 16px rgba(217, 119, 6, 0.3);">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div>
+                <h1 class="hero-title mb-0" style="font-size: 2rem;">Historial de Ventas</h1>
+                <p class="text-secondary mb-0 small mt-1">Registro contable y boletas electrónicas emitidas.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'venta_create' %}" class="btn-action-success">
+            <i class="bi bi-bag-plus-fill"></i>
+            <span>Nueva Venta</span>
+        </a>
+    </div>
+</div>
+
+<!-- Métricas de Recaudación -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100" style="border-radius: 20px; border-left: 4px solid #10B981;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-bold small" style="letter-spacing: 0.06em;">TOTAL RECAUDADO</span>
+                    <h2 class="fw-bold mb-0 text-success mt-1" style="font-size: 2.2rem; font-family: 'Outfit';">${{ total_recaudado|floatformat:"0" }} <small class="text-muted fs-6 fw-normal">CLP</small></h2>
+                </div>
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #ECFDF5, #D1FAE5); color: #059669; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100" style="border-radius: 20px; border-left: 4px solid #3B82F6;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-bold small" style="letter-spacing: 0.06em;">BOLETAS EMITIDAS</span>
+                    <h2 class="fw-bold mb-0 text-dark mt-1" style="font-size: 2.2rem; font-family: 'Outfit';">{{ cantidad_ventas }}</h2>
+                </div>
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #EFF6FF, #DBEAFE); color: #2563EB; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de Filtro de Ventas -->
+<div class="glass-card p-3 mb-4" style="border-radius: 16px;">
+    <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-9">
+            <div class="position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                <input type="text" name="q" value="{{ query }}" class="form-control" style="border-radius: 10px; padding-left: 2.4rem;" placeholder="Buscar por N° de boleta o RUT del comprador...">
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+            <button type="submit" class="btn btn-dark w-100 fw-semibold" style="border-radius: 10px; height: 38px;">
+                <i class="bi bi-search me-1"></i> Buscar
+            </button>
+            {% if query %}
+                <a href="{% url 'venta_list' %}" class="btn btn-light border" style="border-radius: 10px;" title="Limpiar">
+                    <i class="bi bi-x-lg text-secondary"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de Boletas -->
+<div class="glass-card" style="border-radius: 20px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead style="background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);">
+                <tr>
+                    <th scope="col" class="ps-4 text-uppercase text-secondary small fw-bold">N° Boleta</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Fecha & Hora</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">RUT Comprador</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Cliente Asociado</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Ítems</th>
+                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Monto Total</th>
+                    <th scope="col" class="text-end pe-4 text-uppercase text-secondary small fw-bold">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                    <tr style="border-bottom: 1px solid #F1F5F9;">
+                        <td class="ps-4">
+                            <span class="badge font-monospace px-3 py-2" style="background: #0F172A; font-size: 0.82rem; border-radius: 8px;">{{ venta.numero_boleta }}</span>
+                        </td>
+                        <td class="small text-secondary">{{ venta.fecha_venta|date:"d/m/Y H:i" }}</td>
+                        <td class="font-monospace fw-bold text-dark small">{{ venta.rut_cliente }}</td>
+                        <td>
+                            {% if venta.cliente %}
+                                <span class="badge" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); color: #4338CA; border: 1px solid #C7D2FE; border-radius: 99px; padding: 0.35rem 0.75rem;">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>{{ venta.cliente.nombre }}
+                                </span>
+                            {% else %}
+                                <span class="badge text-muted bg-light border" style="border-radius: 99px; padding: 0.35rem 0.75rem;">
+                                    Ocasional
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for detalle in venta.detalles.all %}
+                                <div class="small fw-medium text-dark">
+                                    <span class="badge bg-secondary-subtle text-dark">{{ detalle.cantidad }}x</span> {{ detalle.producto.nombre }}
+                                </div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <span class="fw-bold text-success fs-6">${{ venta.total|floatformat:"0" }}</span>
+                            <span class="text-muted small">CLP</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'venta_detail' venta.pk %}" class="btn btn-sm btn-outline-primary fw-semibold px-3" style="border-radius: 8px;">
+                                <i class="bi bi-receipt me-1"></i> Boleta
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-receipt fs-1 text-secondary d-block mb-2"></i>
+                            <h5 class="fw-bold">No hay boletas registradas</h5>
+                            <a href="{% url 'venta_create' %}" class="btn-action-success btn-sm mt-2">
+                                <i class="bi bi-cart-plus-fill me-1"></i> Realizar Primera Venta
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
