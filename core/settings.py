@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,7 +38,7 @@ SECRET_KEY = 'django-insecure-*3ro#sp5^id1c4p)gn+39d&eqqfhc1t&izwafckw621el4&#we
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'backendunidad1-avg8.vercel.app',
+    'backendunidad1-avg8-e7vbs0wja-duran11',
     'localhost',
     '127.0.0.1'
 ]
