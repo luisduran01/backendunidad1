@@ -17,11 +17,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-db_host= os.getenv("host")
-db_port= os.getenv("port")
-db_database= os.getenv("database")
-db_user= os.getenv("user")
-db_password= os.getenv("password")
+db_host = os.getenv("host")
+db_port = os.getenv("port")
+db_database = os.getenv("database")
+db_user = os.getenv("user")
+db_password = os.getenv("password")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,7 +36,11 @@ SECRET_KEY = 'django-insecure-*3ro#sp5^id1c4p)gn+39d&eqqfhc1t&izwafckw621el4&#we
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'backendunidad1-avg8.vercel.app',
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
