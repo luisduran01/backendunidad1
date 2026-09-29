@@ -2,10 +2,17 @@
 Pruebas Unitarias y de Integración para el Caso 2 (Control de Ventas e Inventario)
 Evaluación Sumativa 1 - Programación Backend
 """
+import csv
+from io import StringIO
+
+from django.contrib import admin
+from django.contrib.admin import ModelAdmin
+from django.http import QueryDict
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 
+from .admin import ProductoAdmin, StockRangeFilter, exportar_productos_csv
 from .models import Producto, Cliente, Venta, DetalleVenta
 from .validators import validar_rut_chileno, formatear_rut
 from .forms import ProductoForm, VentaForm
@@ -59,6 +66,56 @@ class ProductoModelTest(TestCase):
     def test_esta_disponible(self):
         self.assertTrue(self.prod_disponible.esta_disponible())
         self.assertFalse(self.prod_agotado.esta_disponible())
+
+
+class ProductoAdminTest(TestCase):
+    def setUp(self):
+        self.productos = [
+            Producto.objects.create(codigo='P001', nombre='Mouse', precio=10000, stock=10),
+            Producto.objects.create(codigo='P002', nombre='Teclado', precio=25000, stock=3),
+            Producto.objects.create(codigo='P003', nombre='Monitor', precio=90000, stock=0),
+        ]
+
+    def aplicar_filtro(self, valor):
+        params = QueryDict(f'stock_rango={valor}')
+        filtro = StockRangeFilter(
+            request=None,
+            params=params,
+            model=Producto,
+            model_admin=ModelAdmin(Producto, admin.site),
+        )
+        return filtro.queryset(None, Producto.objects.all())
+
+    def test_filtra_por_rango_de_stock(self):
+        self.assertQuerySetEqual(
+            self.aplicar_filtro('agotado'),
+            [self.productos[2].pk],
+            transform=lambda producto: producto.pk,
+        )
+        self.assertQuerySetEqual(
+            self.aplicar_filtro('critico'),
+            [self.productos[1].pk],
+            transform=lambda producto: producto.pk,
+        )
+        self.assertQuerySetEqual(
+            self.aplicar_filtro('disponible'),
+            [self.productos[0].pk],
+            transform=lambda producto: producto.pk,
+        )
+
+    def test_exporta_productos_seleccionados_a_csv(self):
+        queryset = Producto.objects.filter(pk__in=[self.productos[0].pk, self.productos[2].pk])
+        response = exportar_productos_csv(ProductoAdmin(Producto, admin.site), None, queryset)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/csv; charset=utf-8')
+        self.assertIn('attachment; filename="productos_stock.csv"', response['Content-Disposition'])
+
+        rows = list(csv.reader(StringIO(response.content.decode('utf-8-sig'))))
+        self.assertEqual(rows[0], ['Código', 'Nombre', 'Descripción', 'Precio', 'Stock', 'Estado', 'Fecha de creación'])
+        self.assertEqual([row[0] for row in rows[1:]], ['P003', 'P001'])
+        self.assertEqual(rows[1][5], 'Agotado')
+        self.assertEqual(rows[2][5], 'Disponible')
 
 
 class VentaFlowTest(TestCase):
