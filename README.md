@@ -1,7 +1,7 @@
-# Evaluación Sumativa 1: Programación Backend (Django)
+# Evaluación Sumativa 2: Programación Backend (Django)
 **Asignatura:** Programación Back End (TI3041)  
 **Institución:** INACAP  
-**Caso Desarrollado:** **Caso 2 - Aplicación de Control de Venta Básico e Inventario**
+**Caso desarrollado:** **Caso 2 - Aplicación de Control de Venta e Inventario**
 
 ---
 
@@ -22,9 +22,16 @@ Aplicación web desarrollada en el framework **Django (arquitectura Modelo-Vista
 - **Gestión Condicional de Clientes:**
   - **Cliente Habitual:** Si el cliente consiente guardar sus datos, se solicita nombre, correo electrónico y teléfono de contacto.
   - **Cliente Ocasional:** En caso de que no desee registrarse como habitual, solo se solicita el RUT para la emisión de la boleta.
-- **Historial e Impresión:**
+- **Historial, reportes e impresión:**
   - Módulo de historial de boletas emitidas con cálculo de totales y montos recaudados.
+  - Filtros por RUT, boleta y rango de fechas, con paginación.
   - Vista e impresión de Boleta Electrónica detallada.
+
+## Administración y producción
+
+El proyecto activo usa `core.settings` y `core.wsgi`. Django Admin incluye búsquedas por producto, cliente, RUT y boleta, filtros de stock y fecha, exportación CSV, acciones e inline de detalles de venta.
+
+En desarrollo se puede usar SQLite. Para producción se configura PostgreSQL (Supabase o un PaaS) con las variables `host`, `port`, `database`, `user` y `password`. `SECRET_KEY`, `DEBUG` y `ALLOWED_HOSTS` también se leen desde el entorno; consulta `.env.example` como plantilla y nunca publiques un `.env` real.
 
 ---
 
@@ -33,7 +40,8 @@ Aplicación web desarrollada en el framework **Django (arquitectura Modelo-Vista
 - **Django 5.x / 6.x**
 - **Paquete externo `django-crispy-forms` y `crispy-bootstrap5`:** Integración para renderizado limpio de formularios.
 - **Bootstrap 5 & Bootstrap Icons:** Diseño responsivo y moderno.
-- **SQLite3:** Base de datos relacional integrada.
+- **PostgreSQL:** Base de datos recomendada para producción; SQLite queda solo como fallback local.
+- **WhiteNoise:** Servicio de archivos estáticos para producción.
 
 ---
 
@@ -61,13 +69,28 @@ Se incluye un comando personalizado para cargar productos, clientes y ventas de 
 python manage.py poblar_datos
 ```
 
-### 5. Iniciar el servidor de desarrollo
+### 5. Preparar estáticos y comprobar el proyecto
+
+```bash
+python manage.py check --deploy
+python manage.py collectstatic --noinput
+python manage.py test inventario
+```
+
+### 6. Iniciar el servidor de desarrollo
 ```bash
 python manage.py runserver
 ```
 Abra su navegador en: **http://127.0.0.1:8000/**
 
 ---
+
+## ☁️ Despliegue en Vercel
+
+1. Conecta el repositorio a Vercel y conserva `vercel.json`, que apunta a `core/wsgi.py`.
+2. Configura en Vercel las variables de `.env.example`, incluyendo las credenciales PostgreSQL de Supabase.
+3. Ejecuta las migraciones contra la base productiva: `python manage.py migrate`.
+4. Revisa los logs de la función Python en Vercel para validar solicitudes y errores.
 
 ## 🧪 Ejecución de Pruebas Unitarias
 Para verificar el correcto funcionamiento de todas las validaciones de negocio, estructuras de decisión y flujo de ventas:
@@ -83,7 +106,7 @@ backendunidad1/
 ├── manage.py
 ├── requirements.txt
 ├── README.md
-├── mi_proyecto/
+├── core/
 │   ├── settings.py           # Configuración general, paquetes externos y localización
 │   ├── urls.py               # Enrutamiento principal
 │   └── wsgi.py

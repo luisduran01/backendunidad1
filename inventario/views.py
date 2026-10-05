@@ -5,8 +5,10 @@ Evaluación Sumativa 1 - Programación Backend
 import random
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.db import transaction
+from django.core.paginator import Paginator
+from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
+from django.utils.dateparse import parse_date
 
 from .models import Producto, Cliente, Venta, DetalleVenta
 from .forms import ProductoForm, StockUpdateForm, VentaForm
@@ -46,7 +48,7 @@ def producto_list(request):
     valor_total_inventario = sum(p.precio * p.stock for p in productos)
 
     contexto = {
-        'productos': productos,
+        'productos': Paginator(productos, 10).get_page(request.GET.get('page')),
         'query': query,
         'solo_disponibles': solo_disponibles,
         'total_productos': total_productos,
@@ -193,17 +195,16 @@ def venta_create(request):
             email_cliente = form.cleaned_data['email_cliente']
             telefono_cliente = form.cleaned_data['telefono_cliente']
 
-            # Operación aritmética: Cálculo del subtotal y total
-            precio_unitario = producto.precio
-            total_venta = precio_unitario * cantidad
-
-            # Estructura de decisión final de seguridad: Comprobar disponibilidad de stock
-            if producto.stock < cantidad:
-                messages.error(request, f"Stock insuficiente al procesar la venta. Quedan {producto.stock} unidades.")
-                return render(request, 'inventario/venta_form.html', {'form': form})
-
             # Uso de transacción atómica para asegurar la integridad de la base de datos
             with transaction.atomic():
+                producto = Producto.objects.select_for_update().get(pk=producto.pk)
+                if producto.stock < cantidad:
+                    form.add_error('cantidad', f"Stock insuficiente al procesar la venta. Quedan {producto.stock} unidades.")
+                    messages.error(request, form.errors['cantidad'][0])
+                    return render(request, 'inventario/venta_form.html', {'form': form})
+
+                precio_unitario = producto.precio
+                total_venta = precio_unitario * cantidad
                 cliente_obj = None
 
                 # Estructura de decisión: Gestión de cliente habitual vs ocasional
@@ -230,15 +231,19 @@ def venta_create(request):
                     cliente_obj = Cliente.objects.filter(rut=rut_cliente).first()
 
                 # Generar número de boleta único
-                numero_boleta = f"BOL-{random.randint(100000, 999999)}"
-
-                # Crear el registro de la Venta
-                venta = Venta.objects.create(
-                    numero_boleta=numero_boleta,
-                    rut_cliente=rut_cliente,
-                    cliente=cliente_obj,
-                    total=total_venta
-                )
+                for _ in range(5):
+                    numero_boleta = f"BOL-{random.randint(100000, 999999)}"
+                    try:
+                        venta = Venta.objects.create(
+                            numero_boleta=numero_boleta,
+                            rut_cliente=rut_cliente,
+                            cliente=cliente_obj,
+                            total=total_venta
+                        )
+                        break
+                    except IntegrityError:
+                        if _ == 4:
+                            raise
 
                 # Crear el Detalle de la Venta
                 DetalleVenta.objects.create(
@@ -281,6 +286,8 @@ def venta_list(request):
     Permite filtrar por RUT de cliente o número de boleta.
     """
     query = request.GET.get('q', '').strip()
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
     ventas = Venta.objects.select_related('cliente').prefetch_related('detalles__producto').all()
 
     if query:
@@ -288,12 +295,19 @@ def venta_list(request):
             Q(rut_cliente__icontains=query) | Q(numero_boleta__icontains=query)
         )
 
+    if parse_date(fecha_desde):
+        ventas = ventas.filter(fecha_venta__date__gte=fecha_desde)
+    if parse_date(fecha_hasta):
+        ventas = ventas.filter(fecha_venta__date__lte=fecha_hasta)
+
     total_recaudado = ventas.aggregate(Sum('total'))['total__sum'] or 0
     cantidad_ventas = ventas.count()
 
     contexto = {
-        'ventas': ventas,
+        'ventas': Paginator(ventas, 10).get_page(request.GET.get('page')),
         'query': query,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
         'total_recaudado': total_recaudado,
         'cantidad_ventas': cantidad_ventas,
     }
@@ -327,7 +341,7 @@ def cliente_list(request):
     habituales = clientes.filter(es_habitual=True).count()
 
     contexto = {
-        'clientes': clientes,
+        'clientes': Paginator(clientes, 10).get_page(request.GET.get('page')),
         'query': query,
         'total_clientes': total_clientes,
         'habituales': habituales,

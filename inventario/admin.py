@@ -8,6 +8,10 @@ from django.http import HttpResponse
 
 from .models import Producto, Cliente, Venta, DetalleVenta
 
+admin.site.site_header = 'Mi Tienda | Administración'
+admin.site.site_title = 'Mi Tienda POS'
+admin.site.index_title = 'Panel de control de ventas e inventario'
+
 
 class StockRangeFilter(admin.SimpleListFilter):
     title = 'rango de stock'
@@ -79,6 +83,7 @@ class DetalleVentaInline(admin.TabularInline):
 class VentaAdmin(admin.ModelAdmin):
     list_display = ('numero_boleta', 'rut_cliente', 'cliente', 'fecha_venta', 'total')
     list_filter = ('fecha_venta',)
+    date_hierarchy = 'fecha_venta'
     search_fields = ('numero_boleta', 'rut_cliente')
     inlines = [DetalleVentaInline]
     readonly_fields = ('numero_boleta', 'fecha_venta', 'total')

@@ -57,17 +57,23 @@
 <!-- Barra de Filtro de Ventas -->
 <div class="glass-card p-3 mb-4" style="border-radius: 16px;">
     <form method="GET" class="row g-2 align-items-center">
-        <div class="col-md-9">
+        <div class="col-md-5">
             <div class="position-relative">
                 <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
                 <input type="text" name="q" value="{{ query }}" class="form-control" style="border-radius: 10px; padding-left: 2.4rem;" placeholder="Buscar por N° de boleta o RUT del comprador...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="date" name="fecha_desde" value="{{ fecha_desde }}" class="form-control" aria-label="Fecha desde">
+                <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}" class="form-control" aria-label="Fecha hasta">
             </div>
         </div>
         <div class="col-md-3 d-flex gap-2 justify-content-md-end">
             <button type="submit" class="btn btn-dark w-100 fw-semibold" style="border-radius: 10px; height: 38px;">
                 <i class="bi bi-search me-1"></i> Buscar
             </button>
-            {% if query %}
+            {% if query or fecha_desde or fecha_hasta %}
                 <a href="{% url 'venta_list' %}" class="btn btn-light border" style="border-radius: 10px;" title="Limpiar">
                     <i class="bi bi-x-lg text-secondary"></i>
                 </a>
@@ -142,4 +148,13 @@
         </table>
     </div>
 </div>
+{% if ventas.has_other_pages %}
+<nav class="mt-4" aria-label="Paginación de ventas">
+    <ul class="pagination justify-content-center">
+        {% if ventas.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ ventas.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Anterior</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{ ventas.number }} / {{ ventas.paginator.num_pages }}</span></li>
+        {% if ventas.has_next %}<li class="page-item"><a class="page-link" href="?page={{ ventas.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Siguiente</a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}

@@ -419,4 +419,13 @@
         </table>
     </div>
 </div>
+{% if productos.has_other_pages %}
+<nav class="mt-4" aria-label="Paginación de productos">
+    <ul class="pagination justify-content-center">
+        {% if productos.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if solo_disponibles %}&disponibles=1{% endif %}">Anterior</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{ productos.number }} / {{ productos.paginator.num_pages }}</span></li>
+        {% if productos.has_next %}<li class="page-item"><a class="page-link" href="?page={{ productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if solo_disponibles %}&disponibles=1{% endif %}">Siguiente</a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}

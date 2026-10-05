@@ -78,6 +78,7 @@ class ProductoAdminTest(TestCase):
 
     def aplicar_filtro(self, valor):
         params = QueryDict(f'stock_rango={valor}')
+        params._mutable = True
         filtro = StockRangeFilter(
             request=None,
             params=params,

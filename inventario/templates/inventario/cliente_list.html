@@ -143,4 +143,13 @@
         </table>
     </div>
 </div>
+{% if clientes.has_other_pages %}
+<nav class="mt-4" aria-label="Paginación de clientes">
+    <ul class="pagination justify-content-center">
+        {% if clientes.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ clientes.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Anterior</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{ clientes.number }} / {{ clientes.paginator.num_pages }}</span></li>
+        {% if clientes.has_next %}<li class="page-item"><a class="page-link" href="?page={{ clientes.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Siguiente</a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}
