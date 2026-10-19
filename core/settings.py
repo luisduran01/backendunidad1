@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     # Aplicaciones del proyecto
     'bienvenida',
     'inventario',
+    "rest_framework",
 ]
 
 # Configuración de paquete externo django-crispy-forms con Bootstrap 5
