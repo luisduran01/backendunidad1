@@ -62,7 +62,9 @@ INSTALLED_APPS = [
     # Aplicaciones del proyecto
     'bienvenida',
     'inventario',
-    "rest_framework",
+    'rest_framework',
+    'rest_framework_simplejwt',
+
 ]
 
 # Configuración de paquete externo django-crispy-forms con Bootstrap 5
@@ -80,6 +82,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [

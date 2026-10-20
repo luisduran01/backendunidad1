@@ -4,6 +4,23 @@ Configuración de URLs para la aplicación Inventario y Ventas
 from django.urls import path
 from . import views
 
+from .models import Producto
+from rest_framework import routers, serializers, viewsets
+
+class ProductoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Producto
+        fields = '_all_'
+
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+
+router = routers.DefaultRouter()
+router.register(r'productos', ProductoViewSet)
+
+app_name = "inventario"
+
 urlpatterns = [
     # Gestión de Catálogo e Inventario de Productos
     path('', views.producto_list, name='home'),
