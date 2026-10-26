@@ -19,8 +19,6 @@ class ProductoViewSet(viewsets.ModelViewSet):
 router = routers.DefaultRouter()
 router.register(r'productos', ProductoViewSet)
 
-app_name = "inventario"
-
 urlpatterns = [
     # Gestión de Catálogo e Inventario de Productos
     path('', views.producto_list, name='home'),
