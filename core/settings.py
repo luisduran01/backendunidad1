@@ -44,8 +44,21 @@ if not SECRET_KEY:
         raise ImproperlyConfigured('SECRET_KEY es obligatorio cuando DEBUG=False.')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv(
-    'ALLOWED_HOSTS', 'backendunidad1.vercel.app,localhost,127.0.0.1'
+    'ALLOWED_HOSTS', '.vercel.app,backendunidad1.vercel.app,localhost,127.0.0.1'
 ).split(',') if host.strip()]
+
+# Permitir subdominios dinámicos de Vercel (previews/deployments)
+if '.vercel.app' not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.vercel.app')
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        'CSRF_TRUSTED_ORIGINS',
+        'https://*.vercel.app,https://backendunidad1.vercel.app',
+    ).split(',')
+    if origin.strip()
+]
 
 # Application definition
 
