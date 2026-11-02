@@ -70,9 +70,27 @@
     const setStatus = (selector, message, error = false) => { const element = $(selector); element.textContent = message; element.className = `status ${error ? 'text-danger' : 'text-secondary'}`; };
     const accessToken = () => localStorage.getItem(tokenKey);
 
-    async function apiRequest(url, options = {}) {
-        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}), Authorization: `Bearer ${accessToken()}` };
+    async function refreshAccessToken() {
+        const refreshToken = localStorage.getItem(refreshKey);
+        if (!refreshToken) return false;
+        const response = await fetch('/api/token/refresh/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh: refreshToken })
+        });
+        if (!response.ok) return false;
+        const tokens = await response.json();
+        localStorage.setItem(tokenKey, tokens.access);
+        return true;
+    }
+
+    async function apiRequest(url, options = {}, canRefresh = true) {
+        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+        if (accessToken()) headers.Authorization = `Bearer ${accessToken()}`;
         const response = await fetch(url, { ...options, headers });
+        if (response.status === 401 && canRefresh && await refreshAccessToken()) {
+            return apiRequest(url, options, false);
+        }
         if (response.status === 401) { logout(); throw new Error('La sesión expiró. Inicia sesión nuevamente.'); }
         if (!response.ok) { const data = await response.json().catch(() => ({})); throw new Error(data.detail || 'La API rechazó la solicitud.'); }
         return response.status === 204 ? null : response.json();

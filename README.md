@@ -46,7 +46,7 @@ URL pública configurada para el despliegue: `https://backendunidad1.vercel.app/
 - `GET|POST /api/ventas/`
 - `GET|PUT|PATCH|DELETE /api/ventas/<id>/`
 - `GET|POST /api/detalles-venta/`
-- `POST /api/token/` para obtener tokens
+- `POST Py - m pip install django` para obtener tokens
 - `POST /api/token/refresh/` para renovar el access token
 
 El cliente web de la evaluación está disponible en `/api-cliente/`. Inicia sesión con un usuario creado mediante `python manage.py createsuperuser`; el cliente guarda el JWT y envía `Authorization: Bearer <token>` al consultar, crear o eliminar productos.
