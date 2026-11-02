@@ -33,6 +33,33 @@ El proyecto activo usa `core.settings` y `core.wsgi`. Django Admin incluye búsq
 
 En desarrollo se puede usar SQLite. Para producción se configura PostgreSQL (Supabase o un PaaS) con las variables `host`, `port`, `database`, `user` y `password`. `SECRET_KEY`, `DEBUG` y `ALLOWED_HOSTS` también se leen desde el entorno; consulta `.env.example` como plantilla y nunca publiques un `.env` real.
 
+## API REST, JWT y cliente ES03
+
+La API está disponible bajo `/api/` y exige autenticación JWT para los ViewSets:
+
+URL pública configurada para el despliegue: `https://backendunidad1.vercel.app/api/`.
+
+- `GET|POST /api/productos/`
+- `GET|PUT|PATCH|DELETE /api/productos/<id>/`
+- `GET|POST /api/clientes/`
+- `GET|PUT|PATCH|DELETE /api/clientes/<id>/`
+- `GET|POST /api/ventas/`
+- `GET|PUT|PATCH|DELETE /api/ventas/<id>/`
+- `GET|POST /api/detalles-venta/`
+- `POST /api/token/` para obtener tokens
+- `POST /api/token/refresh/` para renovar el access token
+
+El cliente web de la evaluación está disponible en `/api-cliente/`. Inicia sesión con un usuario creado mediante `python manage.py createsuperuser`; el cliente guarda el JWT y envía `Authorization: Bearer <token>` al consultar, crear o eliminar productos.
+
+Para permitir el consumo desde otro dominio, define `CORS_ALLOWED_ORIGINS` como una lista separada por comas, por ejemplo `https://mi-cliente.example.com,http://localhost:3000`. No se habilitan todos los orígenes por defecto.
+
+Ejemplo de autenticación y consulta:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/token/ -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"tu-clave\"}"
+curl http://127.0.0.1:8000/api/productos/ -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
 ---
 
 ## 🛠️ Tecnologías y Paquetes Externos Utilizados

@@ -347,3 +347,8 @@ def cliente_list(request):
         'habituales': habituales,
     }
     return render(request, 'inventario/cliente_list.html', contexto)
+
+
+def api_cliente(request):
+    """Cliente web para consumir la API REST protegida con JWT."""
+    return render(request, 'inventario/api_cliente.html')

@@ -2,25 +2,10 @@
 Configuración de URLs para la aplicación Inventario y Ventas
 """
 from django.urls import include, path
-from rest_framework import routers
-
 from . import views
-from .api import (
-    ProductoViewSet,
-    ClienteViewSet,
-    VentaViewSet,
-    DetalleVentaViewSet,
-)
-
-router = routers.DefaultRouter()
-router.register(r'productos', ProductoViewSet)
-router.register(r'clientes', ClienteViewSet)
-router.register(r'ventas', VentaViewSet)
-router.register(r'detalles-venta', DetalleVentaViewSet)
 
 urlpatterns = [
-    # API REST (Endpoints para todos los modelos)
-    path('api/', include(router.urls)),
+    path('api-cliente/', views.api_cliente, name='api_cliente'),
 
     # Gestión de Catálogo e Inventario de Productos
     path('', views.producto_list, name='home'),

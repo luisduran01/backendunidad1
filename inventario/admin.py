@@ -11,6 +11,7 @@ from .models import Producto, Cliente, Venta, DetalleVenta
 admin.site.site_header = 'Mi Tienda | Administración'
 admin.site.site_title = 'Mi Tienda POS'
 admin.site.index_title = 'Panel de control de ventas e inventario'
+admin.site.empty_value_display = '-'
 
 
 class StockRangeFilter(admin.SimpleListFilter):
@@ -56,12 +57,23 @@ def exportar_productos_csv(modeladmin, request, queryset):
     return response
 
 
+@admin.action(description='Marcar clientes seleccionados como habituales')
+def marcar_clientes_habituales(modeladmin, request, queryset):
+    queryset.update(es_habitual=True)
+
+
+@admin.action(description='Marcar clientes seleccionados como ocasionales')
+def marcar_clientes_ocasionales(modeladmin, request, queryset):
+    queryset.update(es_habitual=False)
+
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('codigo', 'nombre', 'precio', 'stock', 'estado_stock', 'fecha_creacion')
     list_filter = (StockRangeFilter, 'fecha_creacion')
     search_fields = ('codigo', 'nombre')
     ordering = ('nombre',)
+    list_per_page = 25
     actions = (exportar_productos_csv,)
 
 
@@ -71,12 +83,17 @@ class ClienteAdmin(admin.ModelAdmin):
     list_filter = ('es_habitual', 'fecha_registro')
     search_fields = ('rut', 'nombre', 'email')
     ordering = ('nombre',)
+    date_hierarchy = 'fecha_registro'
+    list_per_page = 25
+    actions = (marcar_clientes_habituales, marcar_clientes_ocasionales)
 
 
 class DetalleVentaInline(admin.TabularInline):
     model = DetalleVenta
     extra = 0
-    readonly_fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal')
+    fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal')
+    readonly_fields = fields
+    can_delete = False
 
 
 @admin.register(Venta)
@@ -85,5 +102,7 @@ class VentaAdmin(admin.ModelAdmin):
     list_filter = ('fecha_venta',)
     date_hierarchy = 'fecha_venta'
     search_fields = ('numero_boleta', 'rut_cliente')
-    inlines = [DetalleVentaInline]
+    list_select_related = ('cliente',)
+    list_per_page = 25
+    inlines = (DetalleVentaInline,)
     readonly_fields = ('numero_boleta', 'fecha_venta', 'total')
