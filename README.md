@@ -70,6 +70,17 @@ curl http://127.0.0.1:8000/api/productos/ -H "Authorization: Bearer ACCESS_TOKEN
 - **PostgreSQL:** Base de datos recomendada para producción; SQLite queda solo como fallback local.
 - **WhiteNoise:** Servicio de archivos estáticos para producción.
 
+## 🎨 Skills para diseño frontend
+
+El proyecto incluye las skills `hallmark` y `frontend-design` en `.agents/skills/`, para que GitHub Copilot pueda utilizarlas desde este workspace. Para instalarlas o restaurarlas:
+
+```bash
+npx skills add nutlope/hallmark --yes
+npx skills add anthropics/skills --skill frontend-design --yes
+```
+
+El nombre correcto es `frontend-design` (no `frontend-desing`). La instalación global puede hacerse agregando `--global` o `-g`, pero la instalación del proyecto es la que deja las skills disponibles para este workspace.
+
 ---
 
 ## 🚀 Instrucciones de Instalación y Ejecución
