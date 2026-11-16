@@ -122,6 +122,10 @@ CORS_ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 
+# Allow the local frontend when it is opened directly from a file in development.
+if DEBUG and 'null' not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append('null')
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
     origin_regex.strip()
     for origin_regex in os.getenv(
