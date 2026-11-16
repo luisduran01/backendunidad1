@@ -51,7 +51,7 @@ URL pública configurada para el despliegue: `https://backendunidad1.vercel.app/
 
 El cliente web de la evaluación está disponible en `/api-cliente/`. Inicia sesión con un usuario creado mediante `python manage.py createsuperuser`; el cliente guarda el JWT y envía `Authorization: Bearer <token>` al consultar, crear o eliminar productos.
 
-Para permitir el consumo desde otro dominio, define `CORS_ALLOWED_ORIGINS` como una lista separada por comas, por ejemplo `https://mi-cliente.example.com,http://localhost:3000`. No se habilitan todos los orígenes por defecto.
+Para permitir el consumo desde otro dominio, define `CORS_ALLOWED_ORIGINS` como una lista separada por comas, por ejemplo `https://mi-cliente.example.com,http://localhost:3000`. Las previews y despliegues bajo `*.vercel.app` también se permiten mediante `CORS_ALLOWED_ORIGIN_REGEXES`; puedes reemplazar ese patrón con una lista separada por comas si necesitas restringirlos. No se habilitan todos los orígenes por defecto.
 
 Ejemplo de autenticación y consulta:
 

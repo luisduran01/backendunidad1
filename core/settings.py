@@ -117,9 +117,18 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'CORS_ALLOWED_ORIGINS',
-        'http://localhost:3000,http://127.0.0.1:3000',
+        'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173',
     ).split(',')
     if origin.strip()
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    origin_regex.strip()
+    for origin_regex in os.getenv(
+        'CORS_ALLOWED_ORIGIN_REGEXES',
+        r'^https://([a-z0-9-]+\.)*vercel\.app$',
+    ).split(',')
+    if origin_regex.strip()
 ]
 ROOT_URLCONF = 'core.urls'
 
