@@ -11,6 +11,11 @@ from django.http import QueryDict
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from rest_framework.test import APIClient
+from rest_framework import status
+from unittest.mock import patch
+from django.test import override_settings
 
 from .admin import ProductoAdmin, StockRangeFilter, exportar_productos_csv
 from .models import Producto, Cliente, Venta, DetalleVenta
@@ -176,3 +181,30 @@ class VentaFlowTest(TestCase):
         self.producto.refresh_from_db()
         self.assertEqual(self.producto.stock, 5)
         self.assertEqual(Venta.objects.count(), 0)
+
+
+class AnalisisIAApiTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='analista', password='test-1234')
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+        Producto.objects.create(codigo='IA-1', nombre='Producto prueba', precio=1000, stock=2)
+
+    @override_settings(GROQ_API_KEY='')
+    def test_falta_clave_retorna_error_controlado(self):
+        with patch.dict('os.environ', {'GROQ_API_KEY': ''}):
+            response = self.client.post('/api/ia/analizar-inventario/', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertIn('GROQ_API_KEY', response.json()['detail'])
+
+    def test_respuesta_invalida_de_groq_retorna_bad_gateway(self):
+        fake_completion = type('Completion', (), {
+            'choices': [type('Choice', (), {
+                'message': type('Message', (), {'content': 'esto no es JSON'})()
+            })()]
+        })()
+        with patch.dict('os.environ', {'GROQ_API_KEY': 'test-key'}):
+            with patch('groq.Groq') as groq:
+                groq.return_value.chat.completions.create.return_value = fake_completion
+                response = self.client.post('/api/ia/analizar-inventario/', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)

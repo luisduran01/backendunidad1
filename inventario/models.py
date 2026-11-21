@@ -195,3 +195,20 @@ class DetalleVenta(models.Model):
 
     def __str__(self):
         return f"{self.cantidad}x {self.producto.nombre} (${self.subtotal:,})"
+
+
+class AnalisisIA(models.Model):
+    usuario = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='analisis_inventario',
+    )
+    resumen = models.TextField()
+    alertas = models.JSONField(default=list)
+    recomendaciones = models.JSONField(default=list)
+    snapshot = models.JSONField(default=dict)
+    modelo = models.CharField(max_length=100)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en']

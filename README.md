@@ -133,7 +133,79 @@ Abra su navegador en: **http://127.0.0.1:8000/**
 ## 🧪 Ejecución de Pruebas Unitarias
 Para verificar el correcto funcionamiento de todas las validaciones de negocio, estructuras de decisión y flujo de ventas:
 ```bash
-python manage.py test inventario
+python manage.py test inventario --settings=core.test_settings
+```
+
+## Evaluación Sumativa 4: IA y gráficos
+
+### Características avanzadas
+
+1. **Análisis de inventario con GroqCloud:** el cliente solicita el análisis desde el flujo
+   protegido por JWT. Django toma productos y ventas reales, genera un snapshot, envía
+   el contexto a Groq y valida/almacena un JSON con resumen, alertas y recomendaciones.
+2. **Gráficos dinámicos con Chart.js:** el panel muestra existencias por producto y
+   distribución disponible/crítico/agotado usando datos reales de la API. Los gráficos son
+   responsive y se actualizan al recargar los datos.
+
+### Endpoint de IA
+
+```text
+POST /api/ia/analizar-inventario/
+Authorization: Bearer <access-token>
+Content-Type: application/json
+{}
+```
+
+Respuesta exitosa: `201`, con `resumen`, `alertas`, `recomendaciones`, `modelo`,
+`creado_en` y métricas del snapshot. Respuesta sin clave: `503`. Respuesta externa
+inválida o caída: `502`. El endpoint admite 5 solicitudes por usuario cada hora.
+
+### Variables y credenciales
+
+```dotenv
+GROQ_API_KEY=<clave creada en GroqCloud>
+GROQ_MODEL=llama-3.1-8b-instant
+```
+
+Nunca copie la clave al frontend ni la incluya en Git. Configure `GROQ_API_KEY` localmente
+en `.env` y en los secretos del proveedor público. `backendunidad1/.env.example` contiene
+solo nombres de variables y placeholders.
+
+### Pruebas HTTP rápidas
+
+```bash
+# Inicio de sesión
+curl -X POST http://127.0.0.1:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"TU_USUARIO\",\"password\":\"TU_CLAVE\"}"
+
+# Caso exitoso
+curl -X POST http://127.0.0.1:8000/api/ia/analizar-inventario/ \
+  -H "Authorization: Bearer TU_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{}"
+
+# Caso error: credencial ausente o proveedor no disponible
+curl -X POST http://127.0.0.1:8000/api/ia/analizar-inventario/ \
+  -H "Authorization: Bearer TU_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{}"
+```
+
+### Arquitectura
+
+```mermaid
+flowchart LR
+    U[Usuario] --> C[Cliente React]
+    C -->|JWT Bearer| A[API Django REST]
+    A -->|CRUD y stock| DB[(SQLite/PostgreSQL)]
+    C -->|GET productos/ventas| A
+    C -->|POST análisis IA| A
+    A -->|Clave solo backend| G[GroqCloud]
+    G -->|JSON validado| A
+    A -->|Resultado almacenado| DB
+    A -->|201/502/503| C
+    C -->|Chart.js| V[Gráficos interactivos]
 ```
 
 ---
