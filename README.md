@@ -192,6 +192,22 @@ curl -X POST http://127.0.0.1:8000/api/ia/analizar-inventario/ \
   -d "{}"
 ```
 
+### Chatbot conectado a datos reales
+
+El asistente disponible en `llm/templates/llm/chatbot.html` está conectado a
+`llm/views.py`. Requiere autenticación Django en `/llm/login/` o JWT Bearer en
+`POST /llm/api/chat/`. Antes de llamar a Groq:
+
+- consulta productos reales y las últimas 20 ventas;
+- incluye inventario, valor en bodega y ventas recientes en el contexto;
+- limita a 10 mensajes por usuario por hora;
+- valida mensajes vacíos y longitud máxima;
+- guarda pregunta, respuesta y snapshot en `ConversacionIA`;
+- protege `GROQ_API_KEY` y no la expone al navegador.
+
+Desde el cliente React, el panel **IA y análisis** incluye el botón **Abrir chatbot**
+que lleva a la interfaz Django del dominio real.
+
 ### Arquitectura
 
 ```mermaid

@@ -26,7 +26,7 @@
             padding: 20px;
         }
 
-        .chat-container {
+        .chat-container {y
             width: 100%;
             max-width: 800px;
             height: 90vh;
@@ -342,6 +342,7 @@
     </style>
 </head>
 <body>
+    {% csrf_token %}
     <div class="chat-container">
         <div class="chat-header">
             🤖 Chatbot IA - GroqCloud
@@ -349,8 +350,8 @@
         
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-message">
-                <h2>¡Bienvenido!</h2>
-                <p>Soy tu asistente de IA. ¿En qué puedo ayudarte hoy?</p>
+                <h2>Asistente de inventario</h2>
+                <p>Consulto productos y ventas reales para ayudarte a detectar stock crítico y tomar decisiones.</p>
             </div>
         </div>
         
@@ -385,6 +386,10 @@
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         let isProcessing = false;
+
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        }
 
         // Función para agregar mensaje al chat
         function addMessage(content, isUser) {
@@ -451,10 +456,14 @@
             showTypingIndicator();
             
             try {
-                const response = await fetch('/api/chat/', {
+                const response = await fetch('/llm/api/chat/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken(),
+                        ...(localStorage.getItem('accessToken')
+                            ? { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+                            : {}),
                     },
                     body: JSON.stringify({ message: message })
                 });

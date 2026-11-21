@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     # Aplicaciones del proyecto
     'bienvenida',
     'inventario',
+    'llm',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -118,6 +119,8 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+LOGIN_URL = '/llm/login/'
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()

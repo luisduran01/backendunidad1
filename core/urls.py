@@ -111,6 +111,7 @@ from inventario.api import router
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('inventario.urls')),
+    path('llm/', include('llm.urls')),
     path("api-auth/", include("rest_framework.urls")),
     
     path('api/', include(router.urls)),
